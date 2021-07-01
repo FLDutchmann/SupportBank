@@ -9,6 +9,23 @@ public class Transaction {
     private String narrative;
     private Date date;
 
+    public Account getFrom() {
+        return from;
+    }
+    public Account getTo() {
+        return to;
+    }
+    public int getAmount() {
+        return amount;
+    }
+    public String getNarrative() {
+        return narrative;
+    }
+    public Date getDate() {
+        return date;
+    }
+
+
     public Transaction(int amount, Account from, Account to, String narrative, Date date) {
         this.amount = amount;
         this.from = from;

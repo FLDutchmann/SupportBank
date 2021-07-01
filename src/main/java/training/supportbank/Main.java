@@ -11,7 +11,24 @@ public class Main {
 
     public static void main(String args[]) throws Exception {
         loadFromCSV();
-
+        Scanner scanner = new Scanner(System.in);
+        while(true) {
+            String lineRead = scanner.nextLine();
+            if (lineRead.equalsIgnoreCase("list all")) {
+                accounts.entrySet().forEach(entry -> {
+                    double temp = entry.getValue().getBalance() + 0.0001;
+                    System.out.printf(entry.getKey() + ": %.2f", temp/100);
+                    System.out.println();
+                });
+            } else if (lineRead.substring(0,5).equals("list ")) {
+                String name = lineRead.substring(5,lineRead.length());
+                if(accounts.containsKey(name)){
+                    accounts.get(name).printTransactions();
+                } else System.out.println("Account doesn't exist.");
+            } else if (lineRead.equalsIgnoreCase("exit")) {
+                break;
+            }
+        }
     }
 
     private static Account getAccount(String name) {
@@ -34,12 +51,10 @@ public class Main {
             String[] entries = line.split(",");
 
             Date date = dateFormat.parse(entries[0]);
-            System.out.println(date);
             Account from = getAccount(entries[1]);
             Account to = getAccount(entries[2]);
             String narrative = entries[3];
-            int amount = Integer.parseInt(entries[4]);
-
+            int amount = (int) Math.round(100*Double.parseDouble(entries[4]));
             Transaction transaction = new Transaction(amount, from, to, narrative, date);
 
             from.addTransaction(transaction);
