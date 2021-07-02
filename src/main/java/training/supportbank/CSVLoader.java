@@ -26,7 +26,6 @@ public class CSVLoader implements FileLoader{
             throw new Exception();
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         int lineNumber = 1;
         boolean crashAndBurn = false;
 
