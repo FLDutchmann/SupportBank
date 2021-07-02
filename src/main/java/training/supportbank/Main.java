@@ -3,7 +3,6 @@ package training.supportbank;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,15 +14,22 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
     private static final Logger LOGGER = LogManager.getLogger();
 
 
     private static HashMap<String, Account> accounts = new HashMap<>(1);
+    private static HashMap<String, FileLoader> fileLoaders = new HashMap<>(2);
 
     public static void main(String args[]) throws Exception {
+        fileLoaders.put("csv", new CSVLoader());
+        fileLoaders.put("json", new JsonLoader());
+
         Scanner scanner = new Scanner(System.in);
         while (true) {
             String lineRead = scanner.nextLine();
@@ -42,13 +48,25 @@ public class Main {
                 if(!f.exists()) {
                     System.out.println("The file does not exist.");
                     LOGGER.warn("Tried to open a file that does not exist: " + fileName);
-                } else if(fileName.substring(fileName.length()-4).equals(".csv")){
-                    loadFromCSV(fileName);
-                    System.out.println("Successfully loaded " + fileName);
-                } else if(fileName.substring(fileName.length()-5,fileName.length()).equals(".json")){
-                    loadFromJSON(fileName);
-                    System.out.println("Successfully loaded " + fileName);
+                    continue;
                 }
+                Pattern pattern = Pattern.compile("\\.([a-zA-Z]+)$");
+                System.out.println(fileName);
+                Matcher matcher = pattern.matcher(fileName);
+                if(!matcher.find()) {
+                    System.out.println("File " + fileName + " does not have an extension");
+                    continue;
+                }
+                String extension = matcher.group(1);
+                if(!fileLoaders.containsKey(extension)) {
+                    System.out.println("Files of type " + extension + " are not accepted");
+                    continue;
+                }
+                List<Transaction> transactions = fileLoaders.get(extension).loadFile(fileName);
+                System.out.println("Successfully loaded " + fileName);
+
+                transactions.forEach(Main::addTransactionToAccounts);
+
             } else if (lineRead.equalsIgnoreCase("exit")) {
                 break;
             } else {
@@ -67,87 +85,7 @@ public class Main {
         }
     }
 
-    private static void loadFromJSON(String filename) throws Exception {
-        LOGGER.info("Loading transactions from json file " + filename);
-        Transaction[] file = new Transaction[0];
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        gsonBuilder.registerTypeAdapter(Date.class, (JsonDeserializer<Date>) (jsonElement, type, jsonDeserializationContext) ->
-                {
-                    Date date = new Date();
-                    try{date = dateFormat.parse(jsonElement.getAsString());} catch(Exception e) {};
-                    return date;
-                }
-        );
-        gsonBuilder.registerTypeAdapter(Currency.class, (JsonDeserializer<Currency>) (jsonElement, type, jsonDeserializationContext) ->
-                new Currency(jsonElement.getAsString())
-        );
-        Gson gson = gsonBuilder.create();
-        try {
-            Reader reader = Files.newBufferedReader(Paths.get(filename));
-            file = gson.fromJson(reader, Transaction[].class);
-            reader.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        for(int i = 0; i < file.length; i++){
-            addTransaction(file[i]);
-        }
-    }
-
-    private static void loadFromCSV(String filename) throws Exception {
-        LOGGER.info("Loading transactions from csv file " + filename);
-        File file = new File(filename);
-        Scanner reader = new Scanner(file);
-
-        if (!reader.nextLine().equalsIgnoreCase("Date,From,To,Narrative,Amount")) {
-            LOGGER.error("The first line is incorrect; the header should be 'Date,From,To,Narrative,Amount'");
-            throw new Exception();
-        }
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        int lineNumber = 1;
-        boolean crashAndBurn = false;
-
-        while (reader.hasNextLine()) {
-            lineNumber++;
-            String line = reader.nextLine();
-            String[] entries = line.split(",");
-
-            if (entries.length != 5) {
-                LOGGER.error("Line " + lineNumber + " does not have exactly 5 entries: " + line);
-                crashAndBurn = true;
-            }
-
-            Date date = new Date();
-            try {
-                date = dateFormat.parse(entries[0]);
-            } catch (ParseException e) {
-                LOGGER.error("Line " + lineNumber + " does not have a valid date: " + entries[0]);
-                crashAndBurn = true;
-            }
-            String from = entries[1];
-            String to = entries[2];
-            String narrative = entries[3];
-
-            Currency amount = new Currency(0);
-            try {
-                amount = new Currency(entries[4]);
-            } catch (NumberFormatException e) {
-                LOGGER.error("Line " + lineNumber + " does not have a valid amount: " + entries[4]);
-                crashAndBurn = true;
-            }
-            Transaction transaction = new Transaction(amount, from, to, narrative, date);
-            addTransaction(transaction);
-        }
-
-        if (crashAndBurn) {
-            LOGGER.error("Encountered at least one error while parsing the csv file " + filename + ". Exiting");
-            throw new Exception();
-        }
-    }
-
-    public static void addTransaction(Transaction transaction){
+    public static void addTransactionToAccounts(Transaction transaction){
         getAccount(transaction.getFrom()).addTransaction(transaction);
         getAccount(transaction.getTo()).addTransaction(transaction);
     }
