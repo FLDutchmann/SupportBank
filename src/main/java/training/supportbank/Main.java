@@ -51,7 +51,6 @@ public class Main {
                     continue;
                 }
                 Pattern pattern = Pattern.compile("\\.([a-zA-Z]+)$");
-                System.out.println(fileName);
                 Matcher matcher = pattern.matcher(fileName);
                 if(!matcher.find()) {
                     System.out.println("File " + fileName + " does not have an extension");
