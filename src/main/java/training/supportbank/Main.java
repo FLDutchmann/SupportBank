@@ -5,8 +5,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Scanner;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Main {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     private static HashMap<String, Account> accounts = new HashMap<>(1);
 
     public static void main(String args[]) throws Exception {
