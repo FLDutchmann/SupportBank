@@ -53,12 +53,13 @@ public class Main {
                 Pattern pattern = Pattern.compile("\\.([a-zA-Z]+)$");
                 Matcher matcher = pattern.matcher(fileName);
                 if(!matcher.find()) {
-                    System.out.println("File " + fileName + " does not have an extension");
+                    System.out.println("File " + fileName + " does not have an extension.");
                     continue;
                 }
                 String extension = matcher.group(1);
                 if(!fileLoaders.containsKey(extension)) {
-                    System.out.println("Files of type " + extension + " are not accepted");
+                    LOGGER.warn("Tried to load file with extension " + extension + " which is not recognised");
+                    System.out.println("Files of type " + extension + " are not accepted.");
                     continue;
                 }
                 List<Transaction> transactions = fileLoaders.get(extension).loadFile(fileName);
@@ -69,7 +70,7 @@ public class Main {
             } else if (lineRead.equalsIgnoreCase("exit")) {
                 break;
             } else {
-                System.out.println("Command not recognised");
+                System.out.println("Command not recognised.");
             }
         }
     }

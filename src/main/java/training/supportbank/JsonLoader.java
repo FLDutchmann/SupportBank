@@ -24,7 +24,11 @@ public class JsonLoader implements FileLoader{
         gsonBuilder.registerTypeAdapter(Date.class, (JsonDeserializer<Date>) (jsonElement, type, jsonDeserializationContext) ->
                 {
                     Date date = new Date();
-                    try{date = dateFormat.parse(jsonElement.getAsString());} catch(Exception e) {};
+                    try{
+                        date = dateFormat.parse(jsonElement.getAsString());
+                    } catch(Exception e) {
+                        LOGGER.error("Unable to interpret date " + jsonElement.getAsString() + ". Using default value instead.");
+                    };
                     return date;
                 }
         );
@@ -38,7 +42,8 @@ public class JsonLoader implements FileLoader{
             transactions = gson.fromJson(reader, Transaction[].class);
             reader.close();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOGGER.error("Failed to file " + filename);
+            throw ex;
         }
 
         return Arrays.asList(transactions);
