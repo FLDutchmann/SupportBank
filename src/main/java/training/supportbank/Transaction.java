@@ -1,13 +1,13 @@
 package training.supportbank;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Transaction {
     private Currency amount; // in cents
     private String fromAccount;
     private String toAccount;
     private String narrative;
-    private Date date;
+    private LocalDate date;
 
     public String getFrom() {
         return fromAccount;
@@ -25,12 +25,12 @@ public class Transaction {
         return narrative;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
 
-    public Transaction(Currency amount, String from, String to, String narrative, Date date) {
+    public Transaction(Currency amount, String from, String to, String narrative, LocalDate date) {
         this.amount = amount;
         this.fromAccount = from;
         this.toAccount = to;

@@ -1,18 +1,9 @@
 package training.supportbank;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -29,6 +20,7 @@ public class Main {
     public static void main(String args[]) throws Exception {
         fileLoaders.put("csv", new CSVLoader());
         fileLoaders.put("json", new JsonLoader());
+        fileLoaders.put("xml", new XmlLoader());
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -38,7 +30,7 @@ public class Main {
                     System.out.println(entry.getKey() + ": " + entry.getValue().getBalance());
                 });
             } else if (lineRead.length() >= 5 && lineRead.substring(0, 5).equalsIgnoreCase("list ")) {
-                String name = lineRead.substring(5, lineRead.length());
+                String name = lineRead.substring(5);
                 if (accounts.containsKey(name)) {
                     accounts.get(name).printTransactions();
                 } else System.out.println("Account doesn't exist.");

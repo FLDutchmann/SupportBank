@@ -6,6 +6,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,10 +41,11 @@ public class CSVLoader implements FileLoader{
                 crashAndBurn = true;
             }
 
-            Date date = new Date();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            LocalDate date = LocalDate.of(1900,1,1);
             try {
-                date = dateFormat.parse(entries[0]);
-            } catch (ParseException e) {
+                date = LocalDate.parse(entries[0],formatter);
+            } catch (Exception e) {
                 LOGGER.error("Line " + lineNumber + " does not have a valid date: " + entries[0]);
                 crashAndBurn = true;
             }
