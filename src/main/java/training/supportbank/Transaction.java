@@ -4,16 +4,16 @@ import java.util.Date;
 
 public class Transaction {
     private Currency amount; // in cents
-    private Account fromAccount;
-    private Account toAccount;
+    private String fromAccount;
+    private String toAccount;
     private String narrative;
     private Date date;
 
-    public Account getFrom() {
+    public String getFrom() {
         return fromAccount;
     }
 
-    public Account getTo() {
+    public String getTo() {
         return toAccount;
     }
 
@@ -30,7 +30,7 @@ public class Transaction {
     }
 
 
-    public Transaction(Currency amount, Account from, Account to, String narrative, Date date) {
+    public Transaction(Currency amount, String from, String to, String narrative, Date date) {
         this.amount = amount;
         this.fromAccount = from;
         this.toAccount = to;

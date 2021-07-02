@@ -16,8 +16,8 @@ public class Account {
 
     public void addTransaction (Transaction transaction) {
         transactions.add(transaction);
-        if(this.equals(transaction.getFrom())) balance.add(-transaction.getAmount().getValue());
-        if(this.equals(transaction.getTo())) balance.add(transaction.getAmount().getValue());
+        if(name.equals(transaction.getFrom())) balance.add(-transaction.getAmount().getValue());
+        if(name.equals(transaction.getTo())) balance.add(transaction.getAmount().getValue());
     }
     public Currency getBalance() {
         return balance;
@@ -30,7 +30,7 @@ public class Account {
             DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             System.out.println(dateFormat.format(transaction.getDate()) + ": " + transaction.getNarrative());
             System.out.println(
-                    "From " + transaction.getFrom().getName() + " to " + transaction.getTo().getName() + ": "
+                    "From " + transaction.getFrom() + " to " + transaction.getTo() + ": "
                      + transaction.getAmount()
                     );
         }

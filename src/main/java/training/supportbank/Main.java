@@ -79,9 +79,6 @@ public class Main {
                     return date;
                 }
         );
-        gsonBuilder.registerTypeAdapter(Account.class, (JsonDeserializer<Account>) (jsonElement, type, jsonDeserializationContext) ->
-                getAccount(jsonElement.getAsString())
-        );
         gsonBuilder.registerTypeAdapter(Currency.class, (JsonDeserializer<Currency>) (jsonElement, type, jsonDeserializationContext) ->
                 new Currency(jsonElement.getAsString())
         );
@@ -129,8 +126,8 @@ public class Main {
                 LOGGER.error("Line " + lineNumber + " does not have a valid date: " + entries[0]);
                 crashAndBurn = true;
             }
-            Account from = getAccount(entries[1]);
-            Account to = getAccount(entries[2]);
+            String from = entries[1];
+            String to = entries[2];
             String narrative = entries[3];
 
             Currency amount = new Currency(0);
@@ -151,7 +148,7 @@ public class Main {
     }
 
     public static void addTransaction(Transaction transaction){
-        transaction.getFrom().addTransaction(transaction);
-        transaction.getTo().addTransaction(transaction);
+        getAccount(transaction.getFrom()).addTransaction(transaction);
+        getAccount(transaction.getTo()).addTransaction(transaction);
     }
 }
