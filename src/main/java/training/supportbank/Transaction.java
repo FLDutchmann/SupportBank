@@ -3,7 +3,7 @@ package training.supportbank;
 import java.util.Date;
 
 public class Transaction {
-    private int amount; // in cents
+    private Currency amount; // in cents
     private Account fromAccount;
     private Account toAccount;
     private String narrative;
@@ -17,7 +17,7 @@ public class Transaction {
         return toAccount;
     }
 
-    public int getAmount() {
+    public Currency getAmount() {
         return amount;
     }
 
@@ -30,7 +30,7 @@ public class Transaction {
     }
 
 
-    public Transaction(int amount, Account from, Account to, String narrative, Date date) {
+    public Transaction(Currency amount, Account from, Account to, String narrative, Date date) {
         this.amount = amount;
         this.fromAccount = from;
         this.toAccount = to;

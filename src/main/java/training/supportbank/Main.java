@@ -29,16 +29,14 @@ public class Main {
             String lineRead = scanner.nextLine();
             if (lineRead.equalsIgnoreCase("list all")) {
                 accounts.entrySet().forEach(entry -> {
-                    double temp = entry.getValue().getBalance() + 0.0001;
-                    System.out.printf(entry.getKey() + ": %.2f", temp / 100);
-                    System.out.println();
+                    System.out.println(entry.getKey() + ": " + entry.getValue().getBalance());
                 });
-            } else if (lineRead.substring(0, 5).equals("list ")) {
+            } else if (lineRead.length() >= 5 && lineRead.substring(0, 5).equalsIgnoreCase("list ")) {
                 String name = lineRead.substring(5, lineRead.length());
                 if (accounts.containsKey(name)) {
                     accounts.get(name).printTransactions();
                 } else System.out.println("Account doesn't exist.");
-            } else if (lineRead.substring(0, 12).equals("import file ")){
+            } else if (lineRead.length() >= 12 && lineRead.substring(0, 12).equalsIgnoreCase("import file ")){
                 String fileName = lineRead.substring(12);
                 File f = new File(fileName);
                 if(!f.exists()) {
@@ -46,14 +44,15 @@ public class Main {
                     LOGGER.warn("Tried to open a file that does not exist: " + fileName);
                 } else if(fileName.substring(fileName.length()-4).equals(".csv")){
                     loadFromCSV(fileName);
-                    break;
+                    System.out.println("Successfully loaded " + fileName);
                 } else if(fileName.substring(fileName.length()-5,fileName.length()).equals(".json")){
                     loadFromJSON(fileName);
-                    break;
+                    System.out.println("Successfully loaded " + fileName);
                 }
-            }
-            else if (lineRead.equalsIgnoreCase("exit")) {
+            } else if (lineRead.equalsIgnoreCase("exit")) {
                 break;
+            } else {
+                System.out.println("Command not recognised");
             }
         }
     }
@@ -72,7 +71,7 @@ public class Main {
         LOGGER.info("Loading transactions from json file " + filename);
         Transaction[] file = new Transaction[0];
         GsonBuilder gsonBuilder = new GsonBuilder();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         gsonBuilder.registerTypeAdapter(Date.class, (JsonDeserializer<Date>) (jsonElement, type, jsonDeserializationContext) ->
                 {
                     Date date = new Date();
@@ -80,7 +79,11 @@ public class Main {
                     return date;
                 }
         );
-        gsonBuilder.registerTypeAdapter(Account.class, (JsonDeserializer<Account>) (jsonElement, type, jsonDeserializationContext) -> getAccount(jsonElement.getAsString())
+        gsonBuilder.registerTypeAdapter(Account.class, (JsonDeserializer<Account>) (jsonElement, type, jsonDeserializationContext) ->
+                getAccount(jsonElement.getAsString())
+        );
+        gsonBuilder.registerTypeAdapter(Currency.class, (JsonDeserializer<Currency>) (jsonElement, type, jsonDeserializationContext) ->
+                new Currency(jsonElement.getAsString())
         );
         Gson gson = gsonBuilder.create();
         try {
@@ -129,9 +132,10 @@ public class Main {
             Account from = getAccount(entries[1]);
             Account to = getAccount(entries[2]);
             String narrative = entries[3];
-            int amount = 0;
+
+            Currency amount = new Currency(0);
             try {
-                amount = (int) Math.round(100 * Double.parseDouble(entries[4]));
+                amount = new Currency(entries[4]);
             } catch (NumberFormatException e) {
                 LOGGER.error("Line " + lineNumber + " does not have a valid amount: " + entries[4]);
                 crashAndBurn = true;

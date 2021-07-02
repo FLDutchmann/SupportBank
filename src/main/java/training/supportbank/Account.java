@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Account {
     private String name;
-    private int balance = 0;
+    private Currency balance = new Currency(0);
     private List<Transaction> transactions = new ArrayList<>();
 
     public Account(String name) {
@@ -16,10 +16,10 @@ public class Account {
 
     public void addTransaction (Transaction transaction) {
         transactions.add(transaction);
-        if(this.equals(transaction.getFrom())) balance -= transaction.getAmount();
-        if(this.equals(transaction.getTo())) balance += transaction.getAmount();
+        if(this.equals(transaction.getFrom())) balance.add(-transaction.getAmount().getValue());
+        if(this.equals(transaction.getTo())) balance.add(transaction.getAmount().getValue());
     }
-    public int getBalance() {
+    public Currency getBalance() {
         return balance;
     }
     public String getName() {
