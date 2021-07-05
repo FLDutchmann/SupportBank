@@ -29,6 +29,7 @@ public class Main {
 
         fileExporters.put("csv", new CSVExporter());
         fileExporters.put("json", new JsonExporter());
+        fileExporters.put("xml", new XmlExporter());
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
